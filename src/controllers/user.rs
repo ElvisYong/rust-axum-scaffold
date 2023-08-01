@@ -1,7 +1,5 @@
-use std::sync::Arc;
-
 use axum::{
-    extract::State,
+    extract::{Path, State},
     http::StatusCode,
     response::{IntoResponse, Response},
     routing::get,
@@ -11,9 +9,13 @@ use axum::{
 use crate::services::{service_register::ServiceRegister, user_service::UserService};
 
 pub fn router() -> Router<ServiceRegister> {
-    Router::new().route("/users", get(get_user))
+    Router::new().route("/user/:id", get(get_current_user))
 }
 
-async fn get_user(State(user_service): State<UserService>) -> Response {
-    (StatusCode::OK, "Hello World").into_response()
+async fn get_current_user(
+    Path(id): Path<String>,
+    State(user_service): State<UserService>,
+) -> Response {
+    let current_user = user_service.get_current_user(id).await?;
+    Ok(Json({}))
 }

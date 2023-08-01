@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::{Router, routing::get, http::StatusCode};
 
 use crate::services::service_register::ServiceRegister;

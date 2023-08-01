@@ -17,7 +17,7 @@ pub async fn serve(config: Arc<AppConfig>) -> anyhow::Result<()> {
 
     let app = Router::new()
         .nest("/", health::router())
-        .nest("/users", user::router())
+        .nest("/", user::router())
         .with_state(services) // Inject services into handlers as state
         .layer(
             // Use ServiceBuilder to apply multiple middleware
