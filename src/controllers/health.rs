@@ -1,6 +1,10 @@
+use std::sync::Arc;
+
 use axum::{Router, routing::get, http::StatusCode};
 
-pub fn router() -> Router {
+use crate::services::service_register::ServiceRegister;
+
+pub fn router() -> Router<Arc<ServiceRegister>> {
     Router::new().route("/health", get(get_health_check))
 }
 

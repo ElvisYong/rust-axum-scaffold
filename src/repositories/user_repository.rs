@@ -1,84 +1,33 @@
+use aws_config::SdkConfig;
+use aws_sdk_dynamodb::error::SdkError;
+use aws_sdk_dynamodb::error::SdkError::{
+    ConstructionFailure, DispatchFailure, ResponseError, ServiceError, TimeoutError,
+};
+use aws_sdk_dynamodb::operation::put_item::PutItemOutput;
+use aws_sdk_dynamodb::types::{AttributeValue, WriteRequest};
+use aws_sdk_dynamodb::Client;
+use futures_util::future::join_all;
 use std::cmp;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::time::Duration;
-use aws_config::SdkConfig;
-use aws_sdk_dynamodb::Client;
-use aws_sdk_dynamodb::error::SdkError;
-use aws_sdk_dynamodb::error::SdkError::{ConstructionFailure, DispatchFailure, ResponseError, ServiceError, TimeoutError};
-use aws_sdk_dynamodb::operation::put_item::PutItemOutput;
-use aws_sdk_dynamodb::primitives::Blob;
-use aws_sdk_dynamodb::types::{AttributeValue, WriteRequest};
-use futures_util::future::join_all;
 use tokio::time::sleep;
 use tracing::log::{error, warn};
 
 const INITIAL_DELAY: Duration = Duration::from_secs(1);
 const MAX_DELAY: Duration = Duration::from_secs(300);
 
-pub trait IntoAttributeValue {
-    fn into_av(self) -> AttributeValue;
-}
-
-impl IntoAttributeValue for u64 {
-    fn into_av(self) -> AttributeValue {
-        AttributeValue::N(self.to_string())
-    }
-}
-
-impl IntoAttributeValue for String {
-    fn into_av(self) -> AttributeValue {
-        AttributeValue::S(self)
-    }
-}
-
-impl IntoAttributeValue for Vec<u8> {
-    fn into_av(self) -> AttributeValue {
-        AttributeValue::B(Blob::new(self))
-    }
-}
-
-impl IntoAttributeValue for bool {
-    fn into_av(self) -> AttributeValue { AttributeValue::Bool(self) }
-}
-
-/// Build a PutRequest
-#[macro_export]
-macro_rules! generate_put_request {
-    ($($field_value:expr, $field_name:expr), *) => {{
-        let mut request = PutRequest::builder();
-        $(
-            let value_av = $field_value.clone().into_av();
-            request = request.item($field_name.to_string(), value_av);
-        )*
-        request.build()
-    }}
-}
-
-/// Build a DeleteRequest
-#[macro_export]
-macro_rules! generate_delete_request {
-    ($($field_value:expr, $field_name:expr), *) => {{
-        let mut request = DeleteRequest::builder();
-        $(
-            let value_av = $field_value.clone().into_av();
-            request = request.item($field_name.to_string(), value_av)
-        )*
-        request.build()
-    }}
-}
-
 pub type DynamoItem = HashMap<String, AttributeValue>;
 
 #[derive(Clone)]
-pub struct DynamoDbRepository {
+pub struct UserRepository {
     client: Client,
     pub max_retries: Option<u32>,
 }
 
-impl DynamoDbRepository {
+impl UserRepository {
     pub async fn new(shared_config: &SdkConfig, max_retries: Option<u32>) -> Self {
-        let client = Client::new(&shared_config);
+        let client = Client::new(shared_config);
 
         Self {
             client,
@@ -91,13 +40,10 @@ impl DynamoDbRepository {
     }
 
     pub async fn full_scan(self, table_name: &String) -> anyhow::Result<Option<Vec<DynamoItem>>> {
-        let res = self.client.scan()
-            .table_name(table_name).send().await;
+        let res = self.client.scan().table_name(table_name).send().await;
 
         match res {
-            Ok(res) => {
-                Ok(res.items)
-            }
+            Ok(res) => Ok(res.items),
             Err(e) => {
                 log_sdk_error(e);
                 Err(anyhow::anyhow!("Error while scanning data"))
@@ -115,7 +61,8 @@ impl DynamoDbRepository {
         scan_index_forward: bool,
         limit: Option<i32>,
     ) -> anyhow::Result<Option<Vec<DynamoItem>>> {
-        let res = self.client
+        let res = self
+            .client
             .query()
             .table_name(table_name)
             .set_index_name(index_name)
@@ -128,9 +75,7 @@ impl DynamoDbRepository {
             .await;
 
         match res {
-            Ok(res) => {
-                Ok(res.items)
-            }
+            Ok(res) => Ok(res.items),
             Err(e) => {
                 log_sdk_error(e);
                 Err(anyhow::anyhow!("Error while querying data"))
@@ -138,8 +83,13 @@ impl DynamoDbRepository {
         }
     }
 
-    pub async fn insert(self, table_name: String, aws_hash_map: HashMap<String, AttributeValue>) -> anyhow::Result<PutItemOutput> {
-        let res = self.client
+    pub async fn insert(
+        self,
+        table_name: String,
+        aws_hash_map: HashMap<String, AttributeValue>,
+    ) -> anyhow::Result<PutItemOutput> {
+        let res = self
+            .client
             .put_item()
             .set_table_name(Some(table_name))
             .set_item(Some(aws_hash_map))
@@ -155,17 +105,16 @@ impl DynamoDbRepository {
         }
     }
 
-    pub async fn batch_insert(self, table_name: String, write_requests: Vec<WriteRequest>, pb_template: Option<String>) {
+    pub async fn batch_insert(self, table_name: String, write_requests: Vec<WriteRequest>) {
         let chunks = write_requests.chunks(25);
-        let template = pb_template.unwrap_or("{spinner:.green} Batch inserting data: [{elapsed_precise}] {pos}/{len} ({eta}) {msg}".to_string());
 
         for chunk in chunks {
-            Self::ingest_batch_chunk(&self.client, &table_name, chunk.to_vec(), self.max_retries).await;
+            Self::ingest_batch_chunk(&self.client, &table_name, chunk.to_vec(), self.max_retries)
+                .await;
         }
     }
 
-    pub async fn par_batch_insert(self, table_name: String, write_requests: Vec<WriteRequest>, pb_template: Option<String>) {
-        let template = pb_template.unwrap_or("{spinner:.green} Batch inserting data: [{elapsed_precise}] {pos}/{len} ({eta}) {msg}".to_string());
+    pub async fn par_batch_insert(self, table_name: String, write_requests: Vec<WriteRequest>) {
         let chunks = write_requests.chunks(25);
         let mut insert_tasks = Vec::new();
 
@@ -173,10 +122,16 @@ impl DynamoDbRepository {
             let cloned_client = self.client.clone();
             let cloned_table_name = table_name.clone();
             let cloned_chunk = chunk.to_vec();
-            let max_retries = self.max_retries.clone();
+            let max_retries = self.max_retries;
 
             insert_tasks.push(tokio::spawn(async move {
-                Self::ingest_batch_chunk(&cloned_client, &cloned_table_name, cloned_chunk, max_retries).await;
+                Self::ingest_batch_chunk(
+                    &cloned_client,
+                    &cloned_table_name,
+                    cloned_chunk,
+                    max_retries,
+                )
+                .await;
             }));
         }
 
@@ -206,23 +161,21 @@ impl DynamoDbRepository {
                 .await;
 
             match response {
-                Ok(result) => {
-                    match result.unprocessed_items() {
-                        Some(unprocessed_items) if !unprocessed_items.is_empty() => {
-                            match unprocessed_items.get(table_name) {
-                                Some(retry_items) => {
-                                    items_to_process = retry_items.clone();
-                                }
-                                None => {
-                                    items_to_process = vec![];
-                                }
+                Ok(result) => match result.unprocessed_items() {
+                    Some(unprocessed_items) if !unprocessed_items.is_empty() => {
+                        match unprocessed_items.get(table_name) {
+                            Some(retry_items) => {
+                                items_to_process = retry_items.clone();
+                            }
+                            None => {
+                                items_to_process = vec![];
                             }
                         }
-                        _ => {
-                            items_to_process = vec![];
-                        }
                     }
-                }
+                    _ => {
+                        items_to_process = vec![];
+                    }
+                },
                 Err(e) => {
                     log_sdk_error(e);
                     retry_on_error = true;
@@ -248,7 +201,8 @@ impl DynamoDbRepository {
 }
 
 fn log_sdk_error<T>(error: SdkError<T>)
-    where T: Debug
+where
+    T: Debug,
 {
     match error {
         // The request failed during construction. It was not dispatched over the network.
@@ -278,5 +232,3 @@ fn log_sdk_error<T>(error: SdkError<T>)
         }
     }
 }
-
-
