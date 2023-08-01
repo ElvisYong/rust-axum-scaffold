@@ -12,13 +12,13 @@ use super::{health, user};
 
 /// Server entry point
 pub async fn serve(config: Arc<AppConfig>) -> anyhow::Result<()> {
-    // Register Services
-    let services = Arc::new(ServiceRegister::new(config.clone()).await);
+    // Register Services to be used in handlers
+    let services = ServiceRegister::new(config.clone()).await;
 
     let app = Router::new()
         .nest("/", health::router())
         .nest("/users", user::router())
-        .with_state(services)
+        .with_state(services) // Inject services into handlers as state
         .layer(
             // Use ServiceBuilder to apply multiple middleware
             // This will ensure that the middleware is applied in the order from top to bottom

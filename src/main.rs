@@ -3,6 +3,8 @@ pub mod repositories;
 pub mod services;
 pub mod controllers;
 pub mod config;
+pub mod openapi_generator;
+pub mod domain;
 
 use std::sync::Arc;
 
@@ -16,7 +18,8 @@ async fn main() {
 
     // Initialize environment
     dotenv::dotenv().ok();
-    let config = Arc::new(AppConfig::parse());
+    let app_config = Arc::new(AppConfig::parse());
 
-    controllers::server::serve(config).await.unwrap();
+    // Start the server
+    controllers::server::serve(app_config).await.unwrap();
 }

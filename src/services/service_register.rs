@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use aws_config::{meta::region::RegionProviderChain, retry::RetryConfigBuilder};
-use axum::extract::FromRef;
 
 use crate::{config::AppConfig, repositories::user_repository::UserRepository};
 
@@ -9,7 +8,8 @@ use super::user_service::UserService;
 
 // We will be implementing a substate for each router therefore we need to implement FromRef
 // See https://docs.rs/axum/latest/axum/extract/struct.State.html#substates
-#[derive(Clone, FromRef)]
+// Check UserService for manual implementation of FromRef, alternatively you can use #[derive(FromRef)]
+#[derive(Clone)]
 pub struct ServiceRegister {
     // Reason for having Option is so that when we test we do not have to instantiate all services
     // If we do not have Option, we will have to instantiate all services even if we do not use it for that test

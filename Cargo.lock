@@ -1294,6 +1294,7 @@ dependencies = [
  "dotenv",
  "futures",
  "futures-util",
+ "serde",
  "tokio",
  "tower",
  "tower-http",
