@@ -18,7 +18,15 @@ pub fn router() -> Router<ServiceRegister> {
     Router::new().route("/user/:id", get(get_current_user))
 }
 
-async fn get_current_user(
+#[utoipa::path(
+    get,
+    path = "/user/:id",
+    responses(
+        (status = 200, description = "Successfully retrieved user", body = [UserViewModel]),
+        (status = 500, description = "Internal Server Error", body = [AppError]),
+    )
+)]
+pub async fn get_current_user(
     Path(id): Path<String>,
     State(user_service): State<UserService>,
 ) -> AppResult<Json<UserViewModel>> {

@@ -1,0 +1,86 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "rust-axum-scaffold",
+    "description": "This is a sample generated openapi documentation for reference",
+    "license": {
+      "name": ""
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/user/:id": {
+      "get": {
+        "tags": [
+          "crate::controllers::user"
+        ],
+        "operationId": "get_current_user",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserViewModel"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AppError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserViewModel": {
+        "type": "object",
+        "description": "This is the view model that will be returned to the client\nUtoipa's ToSchema is used to generate the openapi documentation",
+        "required": [
+          "id",
+          "email",
+          "username",
+          "bio"
+        ],
+        "properties": {
+          "bio": {
+            "type": "string",
+            "example": "I love to eat"
+          },
+          "email": {
+            "type": "string",
+            "example": "pp@gmail.com"
+          },
+          "id": {
+            "type": "string",
+            "example": "ppId123"
+          },
+          "image": {
+            "type": "string",
+            "example": "https://www.pexels.com/photo/selective-focus-photography-of-orange-tabby-cat-1170986",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "example": "pplogin"
+          }
+        }
+      }
+    }
+  }
+}

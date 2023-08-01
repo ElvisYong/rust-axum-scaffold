@@ -7,6 +7,7 @@ use axum::{
     Json,
 };
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 pub type AppResult<T> = Result<T, AppError>;
 
@@ -15,26 +16,36 @@ pub type AppResult<T> = Result<T, AppError>;
 /// Error annotations using thiserror will allow us write custom error messages
 /// The #[from] annotation will allow us to convert other types of error such as anyhow::Error into AppError
 /// Introduce your own error types here whenever you need to
-#[derive(thiserror::Error, Debug)]
+#[derive(thiserror::Error, Debug, ToSchema)]
 pub enum AppError {
+    #[schema(example = "Authentication is required to access this resource")]
     #[error("Authentication is required to access this resource")]
     Unauthorized,
+    #[schema(example = "User is not authorized to access this resource")]
     #[error("User is not authorized to access this resource")]
     Forbidden,
+    #[schema(example = "Bad request")]
     #[error("{0}")]
     BadRequest(String),
+    #[schema(example = "Unprocessable entity request")]
     #[error("Unprocessable entity request")]
     UnprocessableEntity,
+    #[schema(example = "Not found")]
     #[error("{0}")]
     NotFound(String),
+    #[schema(example = "Object conflict")]
     #[error("{0}")]
     ObjectConflict(String),
+    #[schema(example = "Unexpected error occurred")]
     #[error("Unexpected error occurred")]
     InternalServerError,
+    #[schema(example = "Unexpected error occurred")]
     #[error("{0}")]
     InternalServerErrorWithMessage(String),
+    #[schema(example = "Unexpected error occurred")]
     #[error(transparent)]
     SerdeDynamoError(#[from] serde_dynamo::Error),
+    #[schema(example = "Unexpected error occurred")]
     #[error(transparent)]
     AnyhowError(#[from] anyhow::Error),
 }

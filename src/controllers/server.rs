@@ -6,12 +6,15 @@ use tower::ServiceBuilder;
 use tower_http::cors::{self, CorsLayer};
 use tracing::log::info;
 
-use crate::{config::AppConfig, services::service_register::ServiceRegister};
+use crate::{config::AppConfig, services::service_register::ServiceRegister, utils::openapi_generator};
 
 use super::{health, user};
 
 /// Server entry point where we register the services and start the server
 pub async fn serve(config: Arc<AppConfig>) -> anyhow::Result<()> {
+    // First generate the openapi.json file
+    openapi_generator::generate_openapi_json();
+
     // Register Services to be used in handlers
     let services = ServiceRegister::new(config.clone()).await;
 

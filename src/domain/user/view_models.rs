@@ -1,15 +1,23 @@
 // View models is where we define the data that will be returned to the client
 // This is also where we can define the data that will be accepted from the client
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use super::models::User;
 
-#[derive(Serialize, Deserialize)]
+/// This is the view model that will be returned to the client
+/// Utoipa's ToSchema is used to generate the openapi documentation
+#[derive(Serialize, Deserialize, ToSchema)]
 pub struct UserViewModel {
+    #[schema(example = "ppId123")]
     id: String,
+    #[schema(example = "pp@gmail.com")]
     email: String,
+    #[schema(example = "pplogin")]
     username: String,
+    #[schema(example = "I love to eat")]
     bio: String,
+    #[schema(example = "https://www.pexels.com/photo/selective-focus-photography-of-orange-tabby-cat-1170986")]
     image: Option<String>,
 }
 

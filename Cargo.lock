@@ -1296,6 +1296,7 @@ dependencies = [
  "futures-util",
  "serde",
  "serde_dynamo",
+ "serde_json",
  "thiserror",
  "tokio",
  "tower",
@@ -1865,6 +1866,7 @@ dependencies = [
  "proc-macro-error",
  "proc-macro2",
  "quote",
+ "regex",
  "syn 2.0.27",
 ]
 
