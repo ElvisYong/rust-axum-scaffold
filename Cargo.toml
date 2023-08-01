@@ -9,7 +9,7 @@ edition = "2021"
 anyhow = "1.0.72"
 aws-config = "0.55.3"
 aws-sdk-dynamodb = "0.28.0"
-axum = "0.6.19"
+axum = { version = "0.6.19", features = ["macros"] }
 futures = "0.3.28"
 futures-util = "0.3.28"
 clap = { version = "4.3.19", features = ["derive", "env"] }

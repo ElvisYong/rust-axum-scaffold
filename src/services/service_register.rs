@@ -7,7 +7,9 @@ use crate::{config::AppConfig, repositories::user_repository::UserRepository};
 
 use super::user_service::UserService;
 
-#[derive(Clone)]
+// We will be implementing a substate for each router therefore we need to implement FromRef
+// See https://docs.rs/axum/latest/axum/extract/struct.State.html#substates
+#[derive(Clone, FromRef)]
 pub struct ServiceRegister {
     // Reason for having Option is so that when we test we do not have to instantiate all services
     // If we do not have Option, we will have to instantiate all services even if we do not use it for that test
@@ -17,13 +19,6 @@ pub struct ServiceRegister {
     pub user_service: Option<UserService>,
 }
 
-// We will need to implement a substate for each router
-// See https://docs.rs/axum/latest/axum/extract/struct.State.html#substates
-impl FromRef<ServiceRegister> for UserService {
-    fn from_ref(services: &ServiceRegister) -> Self {
-        services.user_service.unwrap().clone()
-    }
-}
 
 // Common place to instantiate all our services
 impl ServiceRegister {
@@ -44,6 +39,8 @@ impl ServiceRegister {
         let dynamodb_repository = UserRepository::new(&shared_config, None).await;
         let user_service = UserService::new(dynamodb_repository);
 
-        Self { Some(user_service) }
+        Self {
+            user_service: Some(user_service),
+        }
     }
 }
