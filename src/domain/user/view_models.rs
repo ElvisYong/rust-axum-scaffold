@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::models::User;
 
 #[derive(Serialize, Deserialize)]
-struct UserViewModel {
+pub struct UserViewModel {
     id: String,
     email: String,
     username: String,

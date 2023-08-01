@@ -10,7 +10,7 @@ use crate::{config::AppConfig, services::service_register::ServiceRegister};
 
 use super::{health, user};
 
-/// Server entry point
+/// Server entry point where we register the services and start the server
 pub async fn serve(config: Arc<AppConfig>) -> anyhow::Result<()> {
     // Register Services to be used in handlers
     let services = ServiceRegister::new(config.clone()).await;

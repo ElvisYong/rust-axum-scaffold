@@ -1,10 +1,10 @@
-pub mod utils;
+pub mod config;
+pub mod controllers;
+pub mod domain;
 pub mod repositories;
 pub mod services;
-pub mod controllers;
-pub mod config;
-pub mod openapi_generator;
-pub mod domain;
+pub mod utils;
+pub mod errors;
 
 use std::sync::Arc;
 
