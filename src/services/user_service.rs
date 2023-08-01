@@ -2,12 +2,18 @@
 // Meaning that you will be calling the repositories here
 // The data retrieved from the repositories will be processed here
 // E.g sorting, filtering, pagination, or even combining data from multiple repositories
-// Complex validations should also be done here, or written as a middleware or extractor to be used by the controller layer
+// Business level validations should also be done here
+// e.g checking if a user is already registered before creating a new user
+// Input level validations should be done in the controller layer instead or by a middleware
 
 use axum::extract::FromRef;
+use serde_dynamo::from_item;
+use tracing::log::error;
 
 use crate::{
-    domain::user::view_models::UserViewModel, repositories::user_repository::UserRepository,
+    domain::user::{models::User, view_models::UserViewModel},
+    errors::{AppError, AppResult},
+    repositories::user_repository::UserRepository,
 };
 
 use super::service_register::ServiceRegister;
@@ -32,16 +38,25 @@ impl UserService {
         Self { user_repository }
     }
 
-    pub async fn get_current_user(&self, id: String) -> anyhow::Result<UserViewModel> {
+    pub async fn get_current_user(self, id: String) -> AppResult<UserViewModel> {
         // Get user from database
-        let user = self.user_repository.get_user_by_id(id).await?;
+        let dynamo_items = self.user_repository.get_user_by_id(id).await?;
 
-        // Check if user exists
-        if user.is_none() {
-            return Err(anyhow::anyhow!("User not found"));
+        match dynamo_items {
+            Some(dynamo_items) => {
+                // Convert the dynamo item into a User model
+                let user: User = match from_item(dynamo_items) {
+                    Ok(users) => users,
+                    Err(e) => {
+                        error!("Error while converting dynamo item into User model: {}", e);
+                        return Err(AppError::SerdeDynamoError(e));
+                    }
+                };
+
+                // Convert the User model into a UserViewModel and return
+                Ok(UserViewModel::from(user))
+            }
+            None => Err(AppError::NotFound("User not found".to_string())),
         }
-
-        Ok(user.into())
     }
-
 }

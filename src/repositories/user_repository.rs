@@ -3,6 +3,7 @@
 // We will simply handle the queries and return the data as is
 // Any database related errors should be handled here
 // In the repository layer I am using anyhow to handle errors as it is more convenient
+// You could AWS SdkError into errors.rs and handle it instead too
 
 use crate::utils::dynamodb_helpers::log_sdk_error;
 use crate::utils::dynamodb_helpers::DynamoItem;

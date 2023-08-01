@@ -1295,6 +1295,7 @@ dependencies = [
  "futures",
  "futures-util",
  "serde",
+ "serde_dynamo",
  "thiserror",
  "tokio",
  "tower",
@@ -1443,6 +1444,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.27",
+]
+
+[[package]]
+name = "serde_dynamo"
+version = "4.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fc10b1304ff6f4f67cffe311f23f5e3abd36f00b2f33813c8fac1a571bd821e3"
+dependencies = [
+ "aws-sdk-dynamodb",
+ "base64",
+ "serde",
 ]
 
 [[package]]
