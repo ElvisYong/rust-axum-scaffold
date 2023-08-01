@@ -1,10 +1,10 @@
-use std::{any::Any, sync::Arc};
+use std::sync::Arc;
 
 use anyhow::Context;
 use axum::{
     http::{
         header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE, COOKIE},
-        HeaderValue, Method,
+        Method,
     },
     Router,
 };
@@ -25,17 +25,22 @@ pub async fn serve(config: Arc<AppConfig>) -> anyhow::Result<()> {
         .nest("/users", user::router())
         .with_state(services)
         .layer(
-            CorsLayer::new()
-                .allow_credentials(true)
-                .allow_methods([
-                    Method::GET,
-                    Method::POST,
-                    Method::OPTIONS,
-                    Method::DELETE,
-                    Method::PUT,
-                ])
-                .allow_origin(cors::Any) // In a real application, you should validate the `Origin` header.
-                .allow_headers([AUTHORIZATION, ACCEPT, COOKIE, CONTENT_TYPE]),
+            // Use ServiceBuilder to apply multiple middleware
+            // This will ensure that the middleware is applied in the order from top to bottom
+            // Read https://docs.rs/axum/latest/axum/middleware/index.html#ordering for more info
+            ServiceBuilder::new().layer(
+                CorsLayer::new()
+                    .allow_credentials(true)
+                    .allow_methods([
+                        Method::GET,
+                        Method::POST,
+                        Method::OPTIONS,
+                        Method::DELETE,
+                        Method::PUT,
+                    ])
+                    .allow_origin(cors::Any) // In a real application, you should validate the `Origin` header.
+                    .allow_headers([AUTHORIZATION, ACCEPT, COOKIE, CONTENT_TYPE]),
+            ),
         );
 
     axum::Server::bind(&config.server_address.parse()?)
