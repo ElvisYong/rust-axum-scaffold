@@ -14,6 +14,7 @@ dotenv = "0.15.0"
 futures = "0.3.28"
 futures-util = "0.3.28"
 serde = { version = "1.0.177", features = ["derive"] }
+thiserror = "1.0.44"
 tokio = { version = "1.29.1", features = ["macros", "rt-multi-thread"] }
 tower = { version = "0.4.3", features = ["limit", "util"] }
 tower-http = { version = "0.4.3", features = ["cors"] }
