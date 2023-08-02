@@ -16,36 +16,26 @@ pub type AppResult<T> = Result<T, AppError>;
 /// Error annotations using thiserror will allow us write custom error messages
 /// The #[from] annotation will allow us to convert other types of error such as anyhow::Error into AppError
 /// Introduce your own error types here whenever you need to
-#[derive(thiserror::Error, Debug, ToSchema)]
+#[derive(thiserror::Error, Debug)]
 pub enum AppError {
-    #[schema(example = "Authentication is required to access this resource")]
     #[error("Authentication is required to access this resource")]
     Unauthorized,
-    #[schema(example = "User is not authorized to access this resource")]
     #[error("User is not authorized to access this resource")]
     Forbidden,
-    #[schema(example = "Bad request")]
     #[error("{0}")]
     BadRequest(String),
-    #[schema(example = "Unprocessable entity request")]
     #[error("Unprocessable entity request")]
     UnprocessableEntity,
-    #[schema(example = "Not found")]
     #[error("{0}")]
     NotFound(String),
-    #[schema(example = "Object conflict")]
     #[error("{0}")]
     ObjectConflict(String),
-    #[schema(example = "Unexpected error occurred")]
     #[error("Unexpected error occurred")]
     InternalServerError,
-    #[schema(example = "Unexpected error occurred")]
     #[error("{0}")]
     InternalServerErrorWithMessage(String),
-    #[schema(example = "Unexpected error occurred")]
     #[error(transparent)]
     SerdeDynamoError(#[from] serde_dynamo::Error),
-    #[schema(example = "Unexpected error occurred")]
     #[error(transparent)]
     AnyhowError(#[from] anyhow::Error),
 }
@@ -75,10 +65,13 @@ impl IntoResponse for AppError {
 /// Feel free to design your own API Error response
 /// For this example I am referencing Google's JSON API error response
 /// https://cloud.google.com/apis/design/errors
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, ToSchema)]
 pub struct ApiError {
+    #[schema(example = "500")]
     pub code: u16,
+    #[schema(example = "Internal Server Error")]
     pub message: String,
+    #[schema(example = "500")]
     pub status: String,
 }
 

@@ -3,16 +3,25 @@
   "info": {
     "title": "rust-axum-scaffold",
     "description": "This is a sample generated openapi documentation for reference",
+    "contact": {
+      "name": "Yong Yu En, Elvis"
+    },
     "license": {
       "name": ""
     },
     "version": "0.1.0"
   },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Local server"
+    }
+  ],
   "paths": {
     "/user/:id": {
       "get": {
         "tags": [
-          "crate::controllers::user"
+          "user"
         ],
         "operationId": "get_current_user",
         "responses": {
@@ -82,5 +91,11 @@
         }
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "user",
+      "description": "Operations about use"
+    }
+  ]
 }
