@@ -43,6 +43,10 @@ pub async fn get_current_user(
     Ok(Json(current_user))
 }
 
+// For the endpoint tests, since we're doing integration tests using the generated openapi documentation
+// It is up to you to decide whether you require a mock test or another integration test done here
+// If you want to do a mock test, you can use the mockito crate and introduce traits into your code
+// For this example, we will do a code level controller endpoint integration test here
 #[cfg(test)]
 mod test {
     use std::sync::Arc;
