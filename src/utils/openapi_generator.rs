@@ -6,6 +6,7 @@
 
 // For paths, we have to use __path as a prefix to import the handlers
 // see https://github.com/juhaku/utoipa/blob/cea4c50112c6cc0883767a43ff611db367cd13b5/README.md?plain=1#L171
+use crate::controllers::health::__path_get_health_check;
 use crate::controllers::user_controller::__path_get_current_user;
 use crate::domain::user::view_models::UserViewModel;
 use utoipa::OpenApi;
@@ -22,9 +23,10 @@ use utoipa::OpenApi;
     components(schemas(UserViewModel)),
     info(description = "This is a sample generated openapi documentation for reference"),
     paths(
-        get_current_user,
+       get_health_check, get_current_user,
     ),
     tags(
+        (name = "health", description = "Basic health check to see if the server is up"),
         (name = "user", description = "Operations about use")
     )
 )]

@@ -18,11 +18,29 @@
     }
   ],
   "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "operationId": "get_health_check",
+        "responses": {
+          "200": {
+            "description": "Health check passed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/user/:id": {
       "get": {
         "tags": [
           "user"
         ],
+        "summary": "Get current user",
+        "description": "Get current user\nThis endpoint will return the current user",
         "operationId": "get_current_user",
         "responses": {
           "200": {
@@ -59,7 +77,7 @@
     "schemas": {
       "UserViewModel": {
         "type": "object",
-        "description": "This is the view model that will be returned to the client\nUtoipa's ToSchema is used to generate the openapi documentation",
+        "description": "This is the view model that will be returned to the client\nUtoipa's ToSchema is used to generate the openapi documentation\nWe should include example values for the fields so that we can use the generated openapi documentation\nand a simple postman test generation to test our endpoints using the generated json\nsee https://github.com/allenheltondev/postman-contract-test-generator",
         "required": [
           "id",
           "email",
@@ -93,6 +111,10 @@
     }
   },
   "tags": [
+    {
+      "name": "health",
+      "description": "Basic health check to see if the server is up"
+    },
     {
       "name": "user",
       "description": "Operations about use"
