@@ -24,7 +24,8 @@ pub fn router() -> Router<ServiceRegister> {
     responses(
         (status = 200, description = "Successfully retrieved user", body = [UserViewModel]),
         (status = 500, description = "Internal Server Error", body = [AppError]),
-    )
+    ),
+    tag = "user",
 )]
 pub async fn get_current_user(
     Path(id): Path<String>,
