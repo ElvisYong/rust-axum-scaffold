@@ -8,7 +8,7 @@ use tracing::log::info;
 
 use crate::{config::AppConfig, services::service_register::ServiceRegister, utils::openapi_generator};
 
-use super::{health, user};
+use super::{health, user_controller};
 
 /// Server entry point where we register the services and start the server
 pub async fn serve(config: Arc<AppConfig>) -> anyhow::Result<()> {
@@ -20,7 +20,7 @@ pub async fn serve(config: Arc<AppConfig>) -> anyhow::Result<()> {
 
     let app = Router::new()
         .nest("/", health::router())
-        .nest("/", user::router())
+        .nest("/", user_controller::router())
         .with_state(services) // Inject services into handlers as state
         .layer(
             // Use ServiceBuilder to apply multiple middleware
