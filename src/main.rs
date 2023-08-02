@@ -17,15 +17,13 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
     // Initialize environment
-    get_app_config();
-    dotenv::dotenv().ok();
-    let app_config = Arc::new(AppConfig::parse());
+    let app_config = get_app_config();
 
     // Start the server
     controllers::server::serve(app_config).await.unwrap();
 }
 
-// Seperating this so we can reuse it in tests
+// Separating this so we can reuse it in tests
 pub fn get_app_config() -> Arc<AppConfig> {
     dotenv::dotenv().ok();
     let app_config = Arc::new(AppConfig::parse());
