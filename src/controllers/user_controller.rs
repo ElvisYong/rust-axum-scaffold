@@ -42,3 +42,59 @@ pub async fn get_current_user(
 
     Ok(Json(current_user))
 }
+
+#[cfg(test)]
+mod test {
+    use std::sync::Arc;
+
+    use axum::{
+        body::Body,
+        http::{Method, Request},
+    };
+    use tower::ServiceExt;
+
+    use crate::{
+        config::AppConfig,
+        controllers::user_controller,
+        get_app_config,
+        repositories::user_repository::UserRepository,
+        services::{
+            service_register::{get_aws_shared_config, ServiceRegister},
+            user_service::UserService,
+        },
+    };
+
+    // We could use a mock database for testing, however for this example we will use the actual database
+    // Feel free to use a mock database if you want
+    // Using a real database here would make this an integration test
+    async fn get_service_register(app_config: Arc<AppConfig>) -> ServiceRegister {
+        let shared_config = get_aws_shared_config(app_config).await;
+        let user_repository = UserRepository::new(&shared_config, None).await;
+        let user_service = UserService::new(user_repository);
+
+        ServiceRegister {
+            user_service: Some(user_service),
+        }
+    }
+
+    // Test success path
+    #[tokio::test]
+    async fn get_current_user_success() {
+        // Arrange
+        let app_config = get_app_config();
+        let service_register = get_service_register(app_config).await;
+        let router = user_controller::router().with_state(service_register);
+        let request = Request::builder()
+            .uri("/user/ppId123")
+            .method(Method::GET)
+            .body(Body::empty())
+            .unwrap();
+
+        // Act
+        let response = router.oneshot(request).await.unwrap();
+        let status = response.status();
+
+        // Assert
+        assert_eq!(status, 200);
+    }
+}

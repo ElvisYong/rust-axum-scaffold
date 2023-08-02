@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use aws_config::{meta::region::RegionProviderChain, retry::RetryConfigBuilder};
+use aws_config::{meta::region::RegionProviderChain, retry::RetryConfigBuilder, SdkConfig};
 
 use crate::{config::AppConfig, repositories::user_repository::UserRepository};
 
@@ -19,28 +19,34 @@ pub struct ServiceRegister {
     pub user_service: Option<UserService>,
 }
 
-
 // Common place to instantiate all our services
 impl ServiceRegister {
-    pub async fn new(config: Arc<AppConfig>) -> Self {
+    pub async fn new(app_config: Arc<AppConfig>) -> Self {
         // Setup AWS Related Config
-        let region_provider: RegionProviderChain =
-            RegionProviderChain::default_provider().or_else("ap-southeast-1");
-        let retry_config = RetryConfigBuilder::new()
-            .max_attempts(config.aws_max_retries.unwrap_or(10))
-            .build();
-        let shared_config = aws_config::from_env()
-            .region(region_provider)
-            .retry_config(retry_config)
-            .load()
-            .await;
+        let shared_config = get_aws_shared_config(app_config).await;
 
         // Setup UserService
-        let dynamodb_repository = UserRepository::new(&shared_config, None).await;
-        let user_service = UserService::new(dynamodb_repository);
+        let user_repository = UserRepository::new(&shared_config, None).await;
+        let user_service = UserService::new(user_repository);
 
         Self {
             user_service: Some(user_service),
         }
     }
+}
+
+/// Helper to get AWS Shared Config
+pub async fn get_aws_shared_config(app_config: Arc<AppConfig>) -> SdkConfig {
+    // Setup AWS Related Config
+    let region_provider: RegionProviderChain =
+        RegionProviderChain::default_provider().or_else("ap-southeast-1");
+    let retry_config = RetryConfigBuilder::new()
+        .max_attempts(app_config.aws_max_retries.unwrap_or(10))
+        .build();
+
+    aws_config::from_env()
+        .region(region_provider)
+        .retry_config(retry_config)
+        .load()
+        .await
 }
