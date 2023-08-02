@@ -60,3 +60,42 @@ impl UserService {
         }
     }
 }
+
+// For this test we are also not mocking but doing an actual test
+// calling from the database defined in the environment
+// Feel free to add mocks if required.
+#[cfg(test)]
+mod test {
+    use crate::{
+        domain::user::view_models::UserViewModel,
+        repositories::user_repository::UserRepository,
+        services::{service_register::get_aws_shared_config, user_service::UserService}, get_app_config,
+    };
+
+    #[tokio::test]
+    async fn get_current_user_service() {
+        // Arrange
+        let app_config = get_app_config();
+        let shared_config = get_aws_shared_config(app_config).await;
+        let user_repository = UserRepository::new(&shared_config, None).await;
+        let user_service = UserService::new(user_repository);
+
+        // Act
+        let res = user_service
+            .get_current_user("ppId123".to_string())
+            .await
+            .unwrap();
+
+        // Assert
+        assert_eq!(
+            res,
+            UserViewModel {
+                id: "ppId123".to_string(),
+                email: "pp@gmail.com".to_string(),
+                username: "pplogin".to_string(),
+                bio: "I love to eat".to_string(),
+                image: Some("https://www.pexels.com/photo/selective-focus-photography-of-orange-tabby-cat-1170986".to_string())
+            }
+        )
+    }
+}

@@ -10,18 +10,20 @@ use super::models::User;
 /// We should include example values for the fields so that we can use the generated openapi documentation
 /// and a simple postman test generation to test our endpoints using the generated json
 /// see https://github.com/allenheltondev/postman-contract-test-generator
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, PartialEq, PartialOrd)]
 pub struct UserViewModel {
     #[schema(example = "ppId123")]
-    id: String,
+    pub id: String,
     #[schema(example = "pp@gmail.com")]
-    email: String,
+    pub email: String,
     #[schema(example = "pplogin")]
-    username: String,
+    pub username: String,
     #[schema(example = "I love to eat")]
-    bio: String,
-    #[schema(example = "https://www.pexels.com/photo/selective-focus-photography-of-orange-tabby-cat-1170986")]
-    image: Option<String>,
+    pub bio: String,
+    #[schema(
+        example = "https://www.pexels.com/photo/selective-focus-photography-of-orange-tabby-cat-1170986"
+    )]
+    pub image: Option<String>,
 }
 
 /// This is for quick conversion from the model to the view model which can be used in the handlers
