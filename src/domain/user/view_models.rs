@@ -5,21 +5,29 @@ use utoipa::ToSchema;
 
 use super::models::User;
 
-/// This is the view model that will be returned to the client
-/// Utoipa's ToSchema is used to generate the openapi documentation
-/// We should include example values for the fields so that we can use the generated openapi documentation
-/// and a simple postman test generation to test our endpoints using the generated json
-/// see https://github.com/allenheltondev/postman-contract-test-generator
+// This is the view model that will be returned to the client
+// Utoipa's ToSchema is used to generate the openapi documentation
+// We should include example values for the fields so that we can use the generated openapi documentation
+// and a simple postman test generation to test our endpoints using the generated json
+// see https://github.com/allenheltondev/postman-contract-test-generator
+// We need to use /// to annotate the struct and properties with the description
+
+/// User response view model
 #[derive(Debug, Serialize, Deserialize, ToSchema, PartialEq, PartialOrd)]
 pub struct UserViewModel {
+    /// The unique identifier of the user
     #[schema(example = "ppId123")]
     pub id: String,
+    /// Email of the user
     #[schema(example = "pp@gmail.com")]
     pub email: String,
+    /// Username of the user
     #[schema(example = "pplogin")]
     pub username: String,
+    /// Bio of the user
     #[schema(example = "I love to eat")]
     pub bio: String,
+    /// Image of the user
     #[schema(
         example = "https://www.pexels.com/photo/selective-focus-photography-of-orange-tabby-cat-1170986"
     )]

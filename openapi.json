@@ -77,7 +77,7 @@
     "schemas": {
       "UserViewModel": {
         "type": "object",
-        "description": "This is the view model that will be returned to the client\nUtoipa's ToSchema is used to generate the openapi documentation\nWe should include example values for the fields so that we can use the generated openapi documentation\nand a simple postman test generation to test our endpoints using the generated json\nsee https://github.com/allenheltondev/postman-contract-test-generator",
+        "description": "User response view model",
         "required": [
           "id",
           "email",
@@ -87,23 +87,28 @@
         "properties": {
           "bio": {
             "type": "string",
+            "description": "Bio of the user",
             "example": "I love to eat"
           },
           "email": {
             "type": "string",
+            "description": "Email of the user",
             "example": "pp@gmail.com"
           },
           "id": {
             "type": "string",
+            "description": "The unique identifier of the user",
             "example": "ppId123"
           },
           "image": {
             "type": "string",
+            "description": "Image of the user",
             "example": "https://www.pexels.com/photo/selective-focus-photography-of-orange-tabby-cat-1170986",
             "nullable": true
           },
           "username": {
             "type": "string",
+            "description": "Username of the user",
             "example": "pplogin"
           }
         }
