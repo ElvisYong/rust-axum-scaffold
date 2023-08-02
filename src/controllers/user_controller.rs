@@ -18,6 +18,9 @@ pub fn router() -> Router<ServiceRegister> {
     Router::new().route("/user/:id", get(get_current_user))
 }
 
+/// Utoipa provides a macro to generate the openapi documentation for the handler
+/// The path macro should be used to annotate the handler that contains
+/// method, path, responses, and tag
 #[utoipa::path(
     get,
     path = "/user/:id",

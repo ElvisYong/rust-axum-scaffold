@@ -7,6 +7,9 @@ use super::models::User;
 
 /// This is the view model that will be returned to the client
 /// Utoipa's ToSchema is used to generate the openapi documentation
+/// We should include example values for the fields so that we can use the generated openapi documentation
+/// and a simple postman test generation to test our endpoints using the generated json
+/// see https://github.com/allenheltondev/postman-contract-test-generator
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct UserViewModel {
     #[schema(example = "ppId123")]
