@@ -9,6 +9,7 @@
 use crate::controllers::health::__path_get_health_check;
 use crate::controllers::user_controller::__path_get_current_user;
 use crate::domain::user::view_models::UserViewModel;
+use utoipa::openapi::{OpenApiBuilder, Server, ServerBuilder};
 use utoipa::OpenApi;
 
 // We use the OpenApi macro to generate the openapi documentation
@@ -17,9 +18,6 @@ use utoipa::OpenApi;
 // servers, components, info description, paths, tags
 #[derive(OpenApi)]
 #[openapi(
-    servers(
-        (url = "http://localhost:5000", description = "Local server"),
-    ),
     components(schemas(UserViewModel)),
     info(description = "This is a sample generated openapi documentation for reference"),
     paths(
@@ -32,7 +30,22 @@ use utoipa::OpenApi;
 )]
 pub struct ApiDoc;
 
-pub fn generate_openapi_json() -> () {
-    std::fs::write("openapi.json", ApiDoc::openapi().to_pretty_json().unwrap())
+pub fn generate_openapi_json(address: String) -> () {
+    // This is the equivalent of the following snippet annotation:
+    // However we wannt grab the data from our env to generate the openapi.json file
+    // servers(
+    //     (url = "http://localhost:5000", description = "Local server"),
+    // ),
+    let localhost = ServerBuilder::new()
+        .url(address)
+        .description(Some("Local host for development use"))
+        .build();
+
+    // Add more servers as you wish here
+    let servers = vec![localhost];
+    let builder: OpenApiBuilder = ApiDoc::openapi().into();
+    let openapi = builder.servers(Some(servers)).build();
+
+    std::fs::write("openapi.json", openapi.to_pretty_json().unwrap())
         .expect("Unable to create file");
 }
