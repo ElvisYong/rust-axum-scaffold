@@ -9,7 +9,7 @@
 use crate::controllers::health::__path_get_health_check;
 use crate::controllers::user_controller::__path_get_current_user;
 use crate::domain::user::view_models::UserViewModel;
-use utoipa::openapi::{OpenApiBuilder, Server, ServerBuilder};
+use utoipa::openapi::{OpenApiBuilder, ServerBuilder};
 use utoipa::OpenApi;
 
 // We use the OpenApi macro to generate the openapi documentation
@@ -30,7 +30,7 @@ use utoipa::OpenApi;
 )]
 pub struct ApiDoc;
 
-pub fn generate_openapi_json(address: String) -> () {
+pub fn generate_openapi_json(address: String) {
     // This is the equivalent of the following snippet annotation:
     // However we wannt grab the data from our env to generate the openapi.json file
     // servers(
