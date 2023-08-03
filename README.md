@@ -4,6 +4,13 @@ Rust implementation demo app showcasing the use of Axum web framework for scaffo
 This project is heavily inspired by current realworld axum projects made by 
 [launchbadge](https://github.com/launchbadge/realworld-axum-sqlx/tree/main) and [JoeyMckenzie](https://github.com/JoeyMckenzie/realworld-rust-axum-sqlx).
 
+## What is included in this project
+1. Axum server setup
+2. [AWS DynamoDB](https://crates.io/crates/aws-sdk-dynamodb)
+3. Openapi json generation with [Utoipa](https://crates.io/crates/utoipa)
+4. Swagger-ui documentation page generated with [Utoipa-swagger](https://crates.io/crates/utoipa-swagger-ui)
+5. Generated json should comply to be able to use [Postman Generator Contract Test - OAS3](https://www.postman.com/postman/workspace/contract-test-generator/documentation/18354885-613f65f2-19a6-4f9f-9d8a-fe36a703ff5c) for ease of testing.
+
 ## Project Structure
 This project follows the controller service repository pattern approach to building backend apis
 - `controllers`
