@@ -19,13 +19,16 @@ use super::{health, user_controller};
 /// Server entry point where we register the services and start the server
 pub async fn serve(config: Arc<AppConfig>) -> anyhow::Result<()> {
     // First generate the openapi.json file
-    openapi_generator::generate_openapi_json(config.server_address.clone());
+    let openapi = openapi_generator::generate_openapi_json(config.openapi_server_address.clone());
 
     // Register Services to be used in handlers
     let services = ServiceRegister::new(config.clone()).await;
 
     let app = Router::new()
-        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
+        .merge(
+            SwaggerUi::new("/swagger-ui")
+                .url("/api-docs/openapi.json", openapi),
+        )
         .nest("/", health::router())
         .nest("/", user_controller::router())
         .with_state(services) // Inject services into handlers as state

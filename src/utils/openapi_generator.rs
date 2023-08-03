@@ -30,22 +30,24 @@ use utoipa::OpenApi;
 )]
 pub struct ApiDoc;
 
-pub fn generate_openapi_json(address: String) {
+pub fn generate_openapi_json(address: String) -> utoipa::openapi::OpenApi {
     // This is the equivalent of the following snippet annotation:
     // However we wannt grab the data from our env to generate the openapi.json file
     // servers(
     //     (url = "http://localhost:5000", description = "Local server"),
     // ),
-    let localhost = ServerBuilder::new()
+    let server = ServerBuilder::new()
         .url(address)
-        .description(Some("Local host for development use"))
         .build();
 
     // Add more servers as you wish here
-    let servers = vec![localhost];
+    // Take note that the sever that you want to expose should be here else don't include it
+    let servers = vec![server];
     let builder: OpenApiBuilder = ApiDoc::openapi().into();
     let openapi = builder.servers(Some(servers)).build();
 
     std::fs::write("openapi.json", openapi.to_pretty_json().unwrap())
         .expect("Unable to create file");
+
+    openapi
 }

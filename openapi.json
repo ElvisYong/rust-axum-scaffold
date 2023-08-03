@@ -13,8 +13,7 @@
   },
   "servers": [
     {
-      "url": "0.0.0.0:5000",
-      "description": "Local host for development use"
+      "url": "0.0.0.0:5000"
     }
   ],
   "paths": {
