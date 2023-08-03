@@ -5,20 +5,27 @@ use axum::Router;
 use tower::ServiceBuilder;
 use tower_http::cors::{self, CorsLayer};
 use tracing::log::info;
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
-use crate::{config::AppConfig, services::service_register::ServiceRegister, utils::openapi_generator};
+use crate::{
+    config::AppConfig,
+    services::service_register::ServiceRegister,
+    utils::openapi_generator::{self, ApiDoc},
+};
 
 use super::{health, user_controller};
 
 /// Server entry point where we register the services and start the server
 pub async fn serve(config: Arc<AppConfig>) -> anyhow::Result<()> {
     // First generate the openapi.json file
-    openapi_generator::generate_openapi_json();
+    openapi_generator::generate_openapi_json(config.server_address.clone());
 
     // Register Services to be used in handlers
     let services = ServiceRegister::new(config.clone()).await;
 
     let app = Router::new()
+        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .nest("/", health::router())
         .nest("/", user_controller::router())
         .with_state(services) // Inject services into handlers as state
