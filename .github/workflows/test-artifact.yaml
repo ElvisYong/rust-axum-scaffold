@@ -9,6 +9,7 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    environment: test
 
     steps:
       # Check out your code
@@ -36,16 +37,15 @@ jobs:
           echo "Server started"
           sleep 10 # gives the server some time to start
         env:
-          SERVER_ADDRESS: ${{secrets.SERVER_ADDRESS}}
-          OPENAPI_SERVER_ADDRESS: ${{secrets.OPENAPI_SERVER_ADDRESS}}
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
           AWS_REGION: ${{secrets.AWS_REGION}}
 
       # Use Schemathesis GitHub Action for API testing
       - name: Run Schemathesis tests
         uses: schemathesis/action@v1
         with:
-          schema: '${{secrets.SERVER_ADDRESS}}/api-docs/openapi.json'
+          schema: '${{env.SERVER_ADDRESS}}/api-docs/openapi.json'
 
       # Stop your Rust Axum API server (if needed)
       - name: Stop server
