@@ -1,0 +1,53 @@
+name: Test Artifact
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out your code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Setup Rust
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      # Build your Rust Axum API server
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+
+      # Run your Rust Axum API server (assuming it's a binary named "my_server" and it runs in the background)
+      - name: Run Axum server
+        run: |
+          target/debug/my_server &
+          echo "Server started"
+          sleep 10 # gives the server some time to start
+        env:
+          SERVER_ADDRESS: ${{secrets.SERVER_ADDRESS}}
+          OPENAPI_SERVER_ADDRESS: ${{secrets.OPENAPI_SERVER_ADDRESS}}
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_REGION: ${{secrets.AWS_REGION}}
+
+      # Use Schemathesis GitHub Action for API testing
+      - name: Run Schemathesis tests
+        uses: schemathesis/action@v1
+        with:
+          schema: '${{secrets.SERVER_ADDRESS}}/api-docs/openapi.json'
+
+      # Stop your Rust Axum API server (if needed)
+      - name: Stop server
+        if: always()
+        run: pkill my_server || echo "Server already stopped."
