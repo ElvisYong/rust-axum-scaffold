@@ -28,12 +28,12 @@ jobs:
       - name: Build
         uses: actions-rs/cargo@v1
         with:
-          command: build
+          command: build --release
 
       # Run your Rust Axum API server (assuming it's a binary named "my_server" and it runs in the background)
       - name: Run Axum server
         run: |
-          target/debug/my_server &
+          target/release/rust-axum-scaffold &
           echo "Server started"
           sleep 10 # gives the server some time to start
         env:
