@@ -7,9 +7,6 @@ pub struct AppConfig {
     #[clap(env)]
     pub server_address: String,
 
-    /// The address to be generated in the openapi.json file
-    #[clap(env)]
-    pub openapi_server_address: Option<String>,
 
     // Aws related envs
     #[clap(env)]
@@ -23,4 +20,7 @@ pub struct AppConfig {
     // Defaulted to 10 retries if not specified
     #[clap(env)]
     pub aws_max_retries: Option<u32>,
+    /// The address to be generated in the openapi.json file
+    #[clap(env)]
+    pub openapi_server_address: Option<String>,
 }
