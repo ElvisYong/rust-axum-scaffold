@@ -13,7 +13,7 @@
   },
   "servers": [
     {
-      "url": "0.0.0.0:5000"
+      "url": "0.0.0.0"
     }
   ],
   "paths": {
@@ -56,17 +56,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AppError"
-                  }
-                }
-              }
-            }
+            "description": "Internal Server Error"
           }
         }
       }
