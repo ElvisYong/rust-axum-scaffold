@@ -30,7 +30,7 @@ pub fn router() -> Router<ServiceRegister> {
     path = "/user/:id",
     responses(
         (status = 200, description = "Successfully retrieved user", body = [UserViewModel]),
-        (status = 500, description = "Internal Server Error", body = [AppError]),
+        (status = 500, description = "Internal Server Error"),
     ),
     tag = "user",
 )]
