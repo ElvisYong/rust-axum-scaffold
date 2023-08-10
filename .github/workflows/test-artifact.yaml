@@ -13,6 +13,10 @@ jobs:
 
     env:
       SERVER_ADDRESS: 0.0.0.0:5000
+      OPENAPI_SERVER_ADDRESS: 0.0.0.0:5000
+      AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+      AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+      AWS_REGION: ${{secrets.AWS_REGION}}
 
     steps:
       # Check out your code
@@ -40,18 +44,12 @@ jobs:
           target/release/rust-axum-scaffold &
           echo "Server started"
           sleep 10 # gives the server some time to start
-        env:
-          SERVER_ADDRESS: $SERVER_ADDRESS
-          OPENAPI_SERVER_ADDRESS: $SERVER_ADDRESS
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          AWS_REGION: ${{secrets.AWS_REGION}}
 
       # Use Schemathesis GitHub Action for API testing
       - name: Run Schemathesis tests
         uses: schemathesis/action@v1
         with:
-          schema: "http://$SERVER_ADDRESS/api-docs/openapi.json"
+          schema: "http://${{env.SERVER_ADDRESS}}/api-docs/openapi.json"
 
       # Stop your Rust Axum API server (if needed)
       - name: Stop server
