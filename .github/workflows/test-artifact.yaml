@@ -51,6 +51,7 @@ jobs:
         with:
           schema: "http://${{env.SERVER_ADDRESS}}/api-docs/openapi.json"
           base-url: "http://${{env.SERVER_ADDRESS}}/"
+          report: false
 
       # Stop your Rust Axum API server (if needed)
       - name: Stop server
