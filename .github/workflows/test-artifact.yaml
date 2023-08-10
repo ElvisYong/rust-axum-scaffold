@@ -41,9 +41,7 @@ jobs:
       # Run your Rust Axum API server (assuming it's a binary named "my_server" and it runs in the background)
       - name: Run Axum server
         run: |
-          target/release/rust-axum-scaffold &
-          echo "Server started"
-          sleep 10 # gives the server some time to start
+          target/release/rust-axum-scaffold
 
       # Use Schemathesis GitHub Action for API testing
       - name: Run Schemathesis tests
