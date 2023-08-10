@@ -50,6 +50,7 @@ jobs:
         uses: schemathesis/action@v1
         with:
           schema: "http://${{env.SERVER_ADDRESS}}/api-docs/openapi.json"
+          base-url: "http://${{env.SERVER_ADDRESS}}"
 
       # Stop your Rust Axum API server (if needed)
       - name: Stop server

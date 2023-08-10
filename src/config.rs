@@ -9,7 +9,7 @@ pub struct AppConfig {
 
     /// The address to be generated in the openapi.json file
     #[clap(env)]
-    pub openapi_server_address: String,
+    pub openapi_server_address: Option<String>,
 
     // Aws related envs
     #[clap(env)]
