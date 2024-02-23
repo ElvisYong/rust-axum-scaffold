@@ -1,13 +1,11 @@
 # Step 1: Setup the builder
-FROM rust:1.71 as builder
-
-RUN apt-get update -y \
-    && apt-get install -y libprotobuf-dev protobuf-compiler cmake libclang-dev
+FROM rust:latest as builder
 
 # Create new cargo project and set it to the current directory
 RUN USER=root cargo new --bin rust-axum-scaffold
 WORKDIR /rust-axum-scaffold
 
+# Build cargo crates
 COPY Cargo.toml .
 COPY Cargo.lock .
 
@@ -22,13 +20,10 @@ RUN cargo build --release
 
 # Step 2: Setup and run the runtime container
 # Run time container
-FROM debian:bullseye-slim
+FROM photon:latest
 ARG APP=/usr/src/app
 
-RUN apt-get update \
-    && apt-get upgrade -y \
-    && apt-get install -y ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+RUN tdnf install -y ca-certificates shadow wget
 
 # Set specific user for container security
 ENV APP_USER=appuser

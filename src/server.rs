@@ -2,18 +2,17 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use axum::Router;
+use tokio::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_http::cors::{self, CorsLayer};
-use tracing::log::info;
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
     config::AppConfig,
+    controllers::{health, user_controller},
     services::service_register::ServiceRegister,
-    utils::openapi_generator::{self},
+    utils::openapi_generator,
 };
-
-use super::{health, user_controller};
 
 /// Server entry point where we register the services and start the server
 pub async fn serve(config: Arc<AppConfig>) -> anyhow::Result<()> {
@@ -32,7 +31,6 @@ pub async fn serve(config: Arc<AppConfig>) -> anyhow::Result<()> {
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", openapi))
         .nest("/", health::router())
         .nest("/", user_controller::router())
-        .with_state(services) // Inject services into handlers as state
         .layer(
             // Use ServiceBuilder to apply multiple middleware
             // This will ensure that the middleware is applied in the order from top to bottom
@@ -50,11 +48,12 @@ pub async fn serve(config: Arc<AppConfig>) -> anyhow::Result<()> {
                     // .allow_headers([AUTHORIZATION, ACCEPT, COOKIE, CONTENT_TYPE]),
                     .allow_origin(cors::Any), // In a real application, you should validate the `Origin` header.
             ),
-        );
+        ).with_state(services); // Inject services into handlers as state
 
-    info!("Starting server at {}", config.server_address);
-    axum::Server::bind(&config.server_address.parse()?)
-        .serve(app.into_make_service())
+    tracing::info!("Listening on port 3000");
+    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
+
+    axum::serve(listener, app.into_make_service())
         .await
-        .context("Error starting server")
+        .context("Failed to start server")
 }

@@ -5,6 +5,7 @@ pub mod errors;
 pub mod repositories;
 pub mod services;
 pub mod utils;
+pub mod server;
 
 use std::sync::Arc;
 
@@ -20,7 +21,7 @@ async fn main() {
     let app_config = get_app_config();
 
     // Start the server
-    controllers::server::serve(app_config).await.unwrap();
+    server::serve(app_config).await.unwrap();
 }
 
 // Separating this so we can reuse it in tests
